@@ -25,6 +25,7 @@ public class User implements UserDetails {
     String name;
     String surname;
     Role role;
+    @Column(unique = true)
     String email;
     String password;
     @Column(name = "birth_date")
