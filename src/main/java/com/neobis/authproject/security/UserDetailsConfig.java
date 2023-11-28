@@ -20,7 +20,7 @@ public class UserDetailsConfig implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return repository.findByEmail(username).orElseThrow(
+        return repository.findByUsername(username).orElseThrow(
                 () -> new UsernameNotFoundException(
                         String.format(USER_NOT_FOUND_MSG, username))
         );

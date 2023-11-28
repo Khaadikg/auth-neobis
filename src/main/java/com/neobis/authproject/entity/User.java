@@ -1,6 +1,7 @@
 package com.neobis.authproject.entity;
 
 import com.neobis.authproject.entity.enums.Role;
+import com.neobis.authproject.entity.enums.UserState;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,26 +23,23 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    String name;
-    String surname;
+    @Enumerated(EnumType.STRING)
     Role role;
+    String username;
+    @Enumerated(EnumType.STRING)
+    UserState state;
+    @Column(name = "uuid")
+    String UUID;
+    @Column(name = "uuid_creation_date")
+    LocalDateTime UUIDExpirationDate;
     @Column(unique = true)
     String email;
     String password;
-    @Column(name = "birth_date")
-    LocalDate birthDate;
-    @Column(name = "phone_number")
-    String phoneNumber;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(role.getAuthority()));
         return  authorities;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
     }
 
     @Override

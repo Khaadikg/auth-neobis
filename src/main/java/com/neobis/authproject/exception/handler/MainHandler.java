@@ -1,5 +1,6 @@
 package com.neobis.authproject.exception.handler;
 
+import com.neobis.authproject.exception.RegistrationTokenExpiredException;
 import com.neobis.authproject.exception.NotFoundException;
 import com.neobis.authproject.exception.UserAlreadyExistException;
 import com.neobis.authproject.exception.reponse.ExceptionResponse;
@@ -21,6 +22,12 @@ public class MainHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ExceptionResponse notFoundException(NotFoundException e) { // если сущность (user,product, etc...) не была найдена
         return new ExceptionResponse(HttpStatus.NOT_FOUND, e.getClass().getName(), e.getMessage());
+    }
+
+    @ExceptionHandler(RegistrationTokenExpiredException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionResponse registrationTokenExpiredException(RegistrationTokenExpiredException e) {
+        return new ExceptionResponse(HttpStatus.BAD_REQUEST, e.getClass().getName(), e.getMessage());
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
