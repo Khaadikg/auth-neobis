@@ -10,9 +10,10 @@
 	</parent>
 	<groupId>com.neobis</groupId>
 	<artifactId>auth-project</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>V1</version>
 	<name>auth-project</name>
 	<description>Auth project for neobis</description>
+	<packaging>jar</packaging>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
