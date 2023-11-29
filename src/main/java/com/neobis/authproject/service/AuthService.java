@@ -1,9 +1,11 @@
 package com.neobis.authproject.service;
 
 import com.neobis.authproject.entity.User;
+import com.neobis.authproject.entity.dto.request.LoginRequest;
 import com.neobis.authproject.entity.dto.request.RegistrationRequest;
 import com.neobis.authproject.entity.enums.Role;
 import com.neobis.authproject.entity.enums.UserState;
+import com.neobis.authproject.exception.IncorrectLoginException;
 import com.neobis.authproject.exception.NotFoundException;
 import com.neobis.authproject.exception.RegistrationTokenExpiredException;
 import com.neobis.authproject.exception.UserAlreadyExistException;
@@ -59,6 +61,16 @@ public class AuthService {
         user.setUUIDExpirationDate(null);
         userRepository.save(user);
         return "User account successfully activated";
+    }
+
+    public String login(LoginRequest loginRequest) {
+        User existUser = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new NotFoundException("User not found by username = " + loginRequest.getUsername()));
+        if (encoder.matches(loginRequest.getPassword(), existUser.getPassword()) && existUser.getState() == UserState.ACTIVATED) {
+            return "Welcome back!";
+        } else {
+            throw new IncorrectLoginException("Password is not correct or Access denied! You are not registered");
+        }
     }
 
     private User mapUserRequestToUser(RegistrationRequest request, String UUID) {

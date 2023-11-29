@@ -25,6 +25,7 @@ public class User implements UserDetails {
     Long id;
     @Enumerated(EnumType.STRING)
     Role role;
+    @Column(unique = true)
     String username;
     @Enumerated(EnumType.STRING)
     UserState state;

@@ -1,5 +1,6 @@
 package com.neobis.authproject.controller;
 
+import com.neobis.authproject.entity.dto.request.LoginRequest;
 import com.neobis.authproject.entity.dto.request.RegistrationRequest;
 import com.neobis.authproject.exception.reponse.ExceptionResponse;
 import com.neobis.authproject.service.AuthService;
@@ -30,7 +31,7 @@ public class AuthController {
             @ApiResponse(
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionResponse.class)),
-                    responseCode = "400", description = "Validation exception"),
+                    responseCode = "406", description = "Validation exception"),
             @ApiResponse(
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionResponse.class)),
@@ -61,4 +62,27 @@ public class AuthController {
         return authService.ensureRegistration(token);
     }
 
+    @PostMapping("/sign-in")
+    @Operation(summary = "Login", description = "Implements login logic for users",
+            responses = {
+                    @ApiResponse(
+                            content = @Content(mediaType = "string"),
+                            responseCode = "200", description = "Good"),
+                    @ApiResponse(
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionResponse.class)),
+                            responseCode = "406", description = "Validation exception"),
+                    @ApiResponse(
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionResponse.class)),
+                            responseCode = "400", description = "Incorrect login exception"),
+                    @ApiResponse(
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionResponse.class)),
+                            responseCode = "404", description = "User not found exception")
+            }
+    )
+    public String login(@RequestBody @Valid LoginRequest request) {
+        return authService.login(request);
+    }
 }

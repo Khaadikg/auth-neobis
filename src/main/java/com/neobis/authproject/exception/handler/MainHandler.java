@@ -1,5 +1,6 @@
 package com.neobis.authproject.exception.handler;
 
+import com.neobis.authproject.exception.IncorrectLoginException;
 import com.neobis.authproject.exception.RegistrationTokenExpiredException;
 import com.neobis.authproject.exception.NotFoundException;
 import com.neobis.authproject.exception.UserAlreadyExistException;
@@ -24,6 +25,12 @@ public class MainHandler {
         return new ExceptionResponse(HttpStatus.NOT_FOUND, e.getClass().getName(), e.getMessage());
     }
 
+    @ExceptionHandler(IncorrectLoginException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionResponse incorrectLoginException(IncorrectLoginException e) {
+        return new ExceptionResponse(HttpStatus.BAD_REQUEST, e.getClass().getName(), e.getMessage());
+    }
+
     @ExceptionHandler(RegistrationTokenExpiredException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionResponse registrationTokenExpiredException(RegistrationTokenExpiredException e) {
@@ -37,14 +44,14 @@ public class MainHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     public List<ExceptionResponse> onConstraintValidationException(
             ConstraintViolationException e
     ) {
         return e.getConstraintViolations().stream()
                 .map(
                         violation -> new ExceptionResponse(
-                                HttpStatus.BAD_REQUEST,
+                                HttpStatus.NOT_ACCEPTABLE,
                                 violation.getPropertyPath().toString(),
                                 violation.getMessage()
                         )
@@ -53,13 +60,13 @@ public class MainHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     public List<ExceptionResponse> onMethodArgumentNotValidException(
             MethodArgumentNotValidException e
     ) {
         return e.getBindingResult().getFieldErrors().stream()
                 .map(error -> new ExceptionResponse(
-                        HttpStatus.BAD_REQUEST,
+                        HttpStatus.NOT_ACCEPTABLE,
                         error.getField(),
                         error.getDefaultMessage()))
                 .collect(toList());

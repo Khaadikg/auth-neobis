@@ -2,6 +2,7 @@ package com.neobis.authproject.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neobis.authproject.entity.User;
+import com.neobis.authproject.entity.dto.request.LoginRequest;
 import com.neobis.authproject.entity.dto.request.RegistrationRequest;
 import com.neobis.authproject.entity.enums.Role;
 import com.neobis.authproject.entity.enums.UserState;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,12 +41,15 @@ class AuthControllerTest {
     MockMvc mockMvc;
     ObjectMapper mapper;
     UserRepository userRepository;
+    BCryptPasswordEncoder encoder;
 
     @Autowired
-    public AuthControllerTest(ObjectMapper mapper, WebApplicationContext webApplicationContext, UserRepository userRepository) {
+    public AuthControllerTest(ObjectMapper mapper, WebApplicationContext webApplicationContext,
+                              UserRepository userRepository, BCryptPasswordEncoder encoder) {
         this.mapper = mapper;
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
     @Test
@@ -74,6 +79,27 @@ class AuthControllerTest {
         }
         this.mockMvc.perform(MockMvcRequestBuilders.put(URL + "/ensure-registration")
                         .param("token", "cool_token"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void login() throws Exception{
+        if (userRepository.findByUsername("some_username_valid").isEmpty()) {
+            userRepository.save(User.builder()
+                    .role(Role.USER)
+                    .UUIDExpirationDate(LocalDateTime.now().plusMinutes(5))
+                    .state(UserState.ACTIVATED)
+                    .username("some_username")
+                    .password(encoder.encode("some_password"))
+                    .build());
+        }
+        this.mockMvc.perform(MockMvcRequestBuilders.post(URL + "/sign-in")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(LoginRequest.builder()
+                                .password("some_password")
+                                .username("some_username")
+                                .build())))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
