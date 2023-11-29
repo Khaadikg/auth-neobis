@@ -38,7 +38,7 @@ public class AuthController {
     }
     )
     public String registration(@RequestBody @Valid RegistrationRequest request) {
-        return authService.registration(request);
+        return authService.registration_dev_stage(request);
     }
 
     @PutMapping("/ensure-registration")

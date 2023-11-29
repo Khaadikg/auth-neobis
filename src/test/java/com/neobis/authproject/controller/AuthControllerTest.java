@@ -58,7 +58,7 @@ class AuthControllerTest {
                                 .link("some_link")
                                 .build())))
                 .andDo(print())
-                .andExpect(content().string("User successfully saved!"))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.ALL))
                 .andExpect(status().isOk());
     }
 

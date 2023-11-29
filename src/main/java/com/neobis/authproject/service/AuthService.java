@@ -37,6 +37,15 @@ public class AuthService {
         return "User successfully saved!";
     }
 
+    public String registration_dev_stage(RegistrationRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new UserAlreadyExistException("User with username = " + request.getEmail() + " already exist");
+        }
+        String UUID = java.util.UUID.randomUUID().toString();
+        userRepository.save(mapUserRequestToUser(request, UUID));
+        return request.getLink() + "?token=" + UUID;
+    }
+
     public String ensureRegistration(String UUID) {
         User user = userRepository.findByUUID(UUID).orElseThrow(
                 () -> new NotFoundException("User is not found by UUID = " + UUID)
