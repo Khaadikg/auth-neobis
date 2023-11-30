@@ -1,0 +1,27 @@
+version: '3.1'
+services:
+  auth-postgres:
+    ports:
+      - 5432:5432
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_DB: neobis
+      POSTGRES_PASSWORD: admin
+  auth-neobis:
+    container_name: auth-neobis
+    image: auth-neobis
+    ports:
+      - 8080:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/neobis
+      SPRING_DATASOURCE_USERNAME: postgres_user
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - auth-postgres

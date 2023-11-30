@@ -63,7 +63,7 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    @Operation(summary = "Login", description = "Implements login logic for users",
+    @Operation(summary = "Login", description = "Implements login logic for ACTIVATED only users",
             responses = {
                     @ApiResponse(
                             content = @Content(mediaType = "string"),
