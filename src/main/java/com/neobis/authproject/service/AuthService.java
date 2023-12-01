@@ -29,7 +29,7 @@ public class AuthService {
     private final BCryptPasswordEncoder encoder;
 
     public String registration(RegistrationRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).isPresent()) {
             throw new UserAlreadyExistException("User with username = " + request.getEmail() + " already exist");
         }
         String UUID = java.util.UUID.randomUUID().toString();
@@ -40,8 +40,8 @@ public class AuthService {
     }
 
     public String registration_dev_stage(RegistrationRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new UserAlreadyExistException("User with username = " + request.getEmail() + " already exist");
+        if (userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).isPresent()) {
+            throw new UserAlreadyExistException("User with such username or email already exist");
         }
         String UUID = java.util.UUID.randomUUID().toString();
         userRepository.save(mapUserRequestToUser(request, UUID));
