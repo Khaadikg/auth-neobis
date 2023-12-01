@@ -2,6 +2,7 @@ package com.neobis.authproject.controller;
 
 import com.neobis.authproject.entity.dto.request.LoginRequest;
 import com.neobis.authproject.entity.dto.request.RegistrationRequest;
+import com.neobis.authproject.entity.dto.response.LoginResponse;
 import com.neobis.authproject.exception.reponse.ExceptionResponse;
 import com.neobis.authproject.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,7 +79,7 @@ public class AuthController {
             }
     )
     public String resendMessage(@RequestBody @Valid RegistrationRequest request,
-                                @RequestParam(name = "link") String link) {
+                                @Parameter(description = "The link to frontend service", required = true)@RequestParam(name = "link") String link) {
         return authService.sendMessage_dev(request, link);
     }
 
@@ -86,7 +87,8 @@ public class AuthController {
     @Operation(summary = "Login", description = "Implements login logic for ACTIVATED only users",
             responses = {
                     @ApiResponse(
-                            content = @Content(mediaType = "string"),
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = LoginResponse.class)),
                             responseCode = "200", description = "Good"),
                     @ApiResponse(
                             content = @Content(mediaType = "application/json",
@@ -102,7 +104,7 @@ public class AuthController {
                             responseCode = "404", description = "User not found exception")
             }
     )
-    public String login(@RequestBody @Valid LoginRequest request) {
+    public LoginResponse login(@RequestBody @Valid LoginRequest request) {
         return authService.login(request);
     }
 }

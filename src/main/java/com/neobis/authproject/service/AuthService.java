@@ -3,6 +3,7 @@ package com.neobis.authproject.service;
 import com.neobis.authproject.entity.User;
 import com.neobis.authproject.entity.dto.request.LoginRequest;
 import com.neobis.authproject.entity.dto.request.RegistrationRequest;
+import com.neobis.authproject.entity.dto.response.LoginResponse;
 import com.neobis.authproject.entity.enums.Role;
 import com.neobis.authproject.entity.enums.UserState;
 import com.neobis.authproject.exception.IncorrectLoginException;
@@ -10,6 +11,7 @@ import com.neobis.authproject.exception.NotFoundException;
 import com.neobis.authproject.exception.RegistrationTokenExpiredException;
 import com.neobis.authproject.exception.UserAlreadyExistException;
 import com.neobis.authproject.repository.UserRepository;
+import com.neobis.authproject.security.jwt.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -27,6 +29,7 @@ public class AuthService {
     private final JavaMailSender javaMailSender;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
+    private final JwtTokenUtil jwtTokenUtil;
     String mailText = "Please click to link in below to finish registration!";
 
     public String registration(RegistrationRequest request) {
@@ -72,11 +75,11 @@ public class AuthService {
         return "User account successfully activated";
     }
 
-    public String login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
         User existUser = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new NotFoundException("User not found by username = " + loginRequest.getUsername()));
         if (encoder.matches(loginRequest.getPassword(), existUser.getPassword()) && existUser.getState() == UserState.ACTIVATED) {
-            return "Welcome back!";
+            return loginView(jwtTokenUtil.generateToken(existUser), existUser);
         } else {
             throw new IncorrectLoginException("Password is not correct or Access denied! You are not registered");
         }
@@ -101,5 +104,13 @@ public class AuthService {
         message.setTo(email);
         message.setText(mailText + "\n" + link + "?token=" + uuid);
         javaMailSender.send(message);
+    }
+
+    public LoginResponse loginView(String token, User user) {
+        return LoginResponse.builder()
+                .jwt(token)
+                .username(user.getUsername())
+                .authorities(user.getAuthorities().toString())
+                .build();
     }
 }
