@@ -62,7 +62,7 @@ public class AuthController {
     }
 
     @PutMapping("/resend-message")
-    @Operation(summary = "Registration", description = "Saves user but NOT activate account",
+    @Operation(summary = "Registration resend message", description = "Refreshes token, uses REGISTRATION json, user must be already saved via sign-up",
             responses = {
                     @ApiResponse(
                             content = @Content(mediaType = "string"),
