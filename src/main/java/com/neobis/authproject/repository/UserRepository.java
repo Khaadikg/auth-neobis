@@ -10,7 +10,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     @Query("""
             select u from User u where lower(u.username) like lower(:username)
-            or lower(u.email) like lower(u.email)""")
+            or lower(u.email) like lower(:email)""")
     Optional<User> findByUniqConstraint(String username, String email);
     Optional<User> findByUUID(String UUID);
 }

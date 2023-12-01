@@ -27,13 +27,13 @@ public class AuthService {
     private final JavaMailSender javaMailSender;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
+    String mailText = "Please click to link in below to finish registration!";
 
     public String registration(RegistrationRequest request) {
         if (userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).isPresent()) {
             throw new UserAlreadyExistException("User with username = " + request.getEmail() + " already exist");
         }
         String UUID = java.util.UUID.randomUUID().toString();
-        String mailText = "Please click to link in below to finish registration!";
         sendSimpleMessage(request.getEmail(), request.getLink(), UUID, mailText);
         userRepository.save(mapUserRequestToUser(request, UUID));
         return "User successfully saved!";
@@ -45,6 +45,28 @@ public class AuthService {
         }
         String UUID = java.util.UUID.randomUUID().toString();
         userRepository.save(mapUserRequestToUser(request, UUID));
+        return request.getLink() + "?token=" + UUID;
+    }
+
+    public String resendMessage(RegistrationRequest request) {
+        User user = userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).orElseThrow(
+                () -> new UserAlreadyExistException("User with username = " + request.getEmail() + " not exist")
+        );
+        String UUID = java.util.UUID.randomUUID().toString();
+        sendSimpleMessage(request.getEmail(), request.getLink(), UUID, mailText);
+        user.setUUIDExpirationDate(LocalDateTime.now().plusMinutes(5));
+        userRepository.save(user);
+        return "Мы выслали еще одно письмо на указанную тобой почту " + request.getEmail();
+    }
+
+    public String resendMessage_dev_stage(RegistrationRequest request) {
+        User user = userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).orElseThrow(
+                () -> new UserAlreadyExistException("User with username = " + request.getEmail() + " not exist")
+        );
+        String UUID = java.util.UUID.randomUUID().toString();
+        user.setUUID(UUID);
+        user.setUUIDExpirationDate(LocalDateTime.now().plusMinutes(5));
+        userRepository.save(user);
         return request.getLink() + "?token=" + UUID;
     }
 

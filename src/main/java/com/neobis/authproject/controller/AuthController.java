@@ -28,14 +28,13 @@ public class AuthController {
                     @ApiResponse(
                             content = @Content(mediaType = "string"),
                             responseCode = "200", description = "Good"),
-            @ApiResponse(
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)),
-                    responseCode = "406", description = "Validation exception"),
-            @ApiResponse(
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)),
-                    responseCode = "404", description = "User not found exception")
+                    @ApiResponse(
+                            content = @Content(mediaType = "application/json"),
+                            responseCode = "302", description = "User already exist exception"),
+                    @ApiResponse(
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionResponse.class)),
+                            responseCode = "406", description = "Validation exception")
     }
     )
     public String registration(@RequestBody @Valid RegistrationRequest request) {
@@ -60,6 +59,26 @@ public class AuthController {
     )
     public String ensureRegistration(@Parameter(description = "The token that comes from backend", required = true) @RequestParam(name = "token") @NotBlank String token) {
         return authService.ensureRegistration(token);
+    }
+
+    @PutMapping("/resend-message")
+    @Operation(summary = "Registration", description = "Saves user but NOT activate account",
+            responses = {
+                    @ApiResponse(
+                            content = @Content(mediaType = "string"),
+                            responseCode = "200", description = "Good"),
+                    @ApiResponse(
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionResponse.class)),
+                            responseCode = "406", description = "Validation exception"),
+                    @ApiResponse(
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionResponse.class)),
+                            responseCode = "404", description = "User not found with such email exception")
+            }
+    )
+    public String resendMessage(@RequestBody @Valid RegistrationRequest request) {
+        return authService.resendMessage_dev_stage(request);
     }
 
     @PostMapping("/sign-in")
