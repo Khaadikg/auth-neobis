@@ -50,7 +50,7 @@ public class AuthService {
 
     public String resendMessage(RegistrationRequest request) {
         User user = userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).orElseThrow(
-                () -> new UserAlreadyExistException("User with username = " + request.getEmail() + " not exist")
+                () -> new NotFoundException("User with username = " + request.getEmail() + " not exist")
         );
         String UUID = java.util.UUID.randomUUID().toString();
         sendSimpleMessage(request.getEmail(), request.getLink(), UUID, mailText);

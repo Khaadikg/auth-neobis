@@ -68,6 +68,30 @@ class AuthControllerTest {
     }
 
     @Test
+    void resendMessage() throws Exception {
+        if (userRepository.findByUUID("cool_token").isEmpty()) {
+            userRepository.save(User.builder()
+                    .role(Role.USER)
+                    .UUIDExpirationDate(LocalDateTime.now().plusMinutes(5))
+                    .state(UserState.DISABLED)
+                    .UUID("cool_token")
+                    .username("regis_username")
+                    .build());
+        }
+        this.mockMvc.perform(MockMvcRequestBuilders.put(URL + "/resend-message")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(RegistrationRequest.builder()
+                                .email("notexist@mail.com")
+                                .password("regis_password")
+                                .username("regis_username")
+                                .link("some_link")
+                                .build())))
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.ALL))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void ensureRegistration() throws Exception{
         if (userRepository.findByUUID("cool_token").isEmpty()) {
             userRepository.save(User.builder()
