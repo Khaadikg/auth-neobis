@@ -33,43 +33,30 @@ public class AuthService {
         if (userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).isPresent()) {
             throw new UserAlreadyExistException("User with username = " + request.getEmail() + " already exist");
         }
-        String UUID = java.util.UUID.randomUUID().toString();
-        sendSimpleMessage(request.getEmail(), request.getLink(), UUID, mailText);
-        userRepository.save(mapUserRequestToUser(request, UUID));
+        userRepository.save(mapUserRequestToUser(request));
         return "User successfully saved!";
     }
 
-    public String registration_dev_stage(RegistrationRequest request) {
-        if (userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).isPresent()) {
-            throw new UserAlreadyExistException("User with such username or email already exist");
-        }
-        String UUID = java.util.UUID.randomUUID().toString();
-        userRepository.save(mapUserRequestToUser(request, UUID));
-        return request.getLink() + "?token=" + UUID;
-    }
-
-    public String resendMessage(RegistrationRequest request) {
+    public String sendMessage(RegistrationRequest request, String link) {
         User user = userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).orElseThrow(
-                () -> new NotFoundException("User with username = " + request.getEmail() + " not exist")
+                () -> new NotFoundException("User with email = " + request.getEmail() + " not exist")
         );
         String UUID = java.util.UUID.randomUUID().toString();
-        sendSimpleMessage(request.getEmail(), request.getLink(), UUID, mailText);
+        sendSimpleMessage(request.getEmail(), link, UUID);
         user.setUUIDExpirationDate(LocalDateTime.now().plusMinutes(5));
         userRepository.save(user);
-        return "Мы выслали еще одно письмо на указанную тобой почту " + request.getEmail();
+        return "Письмо отправлено на почту " + request.getEmail();
     }
 
-    public String resendMessage_dev_stage(RegistrationRequest request) {
+    public String sendMessage_dev(RegistrationRequest request, String link) {
         User user = userRepository.findByUniqConstraint(request.getUsername(), request.getEmail()).orElseThrow(
-                () -> new UserAlreadyExistException("User with username = " + request.getEmail() + " not exist")
+                () -> new NotFoundException("User with email = " + request.getEmail() + " not exist")
         );
         String UUID = java.util.UUID.randomUUID().toString();
-        user.setUUID(UUID);
         user.setUUIDExpirationDate(LocalDateTime.now().plusMinutes(5));
         userRepository.save(user);
-        return request.getLink() + "?token=" + UUID;
+        return link + "?token=" + UUID; // disable for prod
     }
-
     public String ensureRegistration(String UUID) {
         User user = userRepository.findByUUID(UUID).orElseThrow(
                 () -> new NotFoundException("User is not found by UUID = " + UUID)
@@ -95,25 +82,24 @@ public class AuthService {
         }
     }
 
-    private User mapUserRequestToUser(RegistrationRequest request, String UUID) {
+    private User mapUserRequestToUser(RegistrationRequest request) {
         return User.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
                 .role(Role.USER)
-                .UUID(UUID)
                 .UUIDExpirationDate(LocalDateTime.now().plusMinutes(5))
                 .state(UserState.DISABLED)
                 .password(encoder.encode(request.getPassword()))
                 .build();
     }
 
-    public void sendSimpleMessage(String email, String link, String uuid, String text) {
+    public void sendSimpleMessage(String email, String link, String uuid) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setFrom(mail);
         message.setSubject("Lorby registration!");
         message.setTo(email);
-        message.setText(text + "\n" + link + "?token=" + uuid);
+        message.setText(mailText + "\n" + link + "?token=" + uuid);
         javaMailSender.send(message);
     }
 }

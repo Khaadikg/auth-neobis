@@ -35,10 +35,10 @@ public class AuthController {
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ExceptionResponse.class)),
                             responseCode = "406", description = "Validation exception")
-    }
+            }
     )
     public String registration(@RequestBody @Valid RegistrationRequest request) {
-        return authService.registration_dev_stage(request);
+        return authService.registration(request);
     }
 
     @PutMapping("/ensure-registration")
@@ -61,8 +61,8 @@ public class AuthController {
         return authService.ensureRegistration(token);
     }
 
-    @PutMapping("/resend-message")
-    @Operation(summary = "Registration resend message", description = "Refreshes token, uses REGISTRATION json, user must be already saved via sign-up",
+    @PutMapping("/send-message")
+    @Operation(summary = "Registration send message", description = "Sends new token, uses REGISTRATION json, user must be already saved via sign-up",
             responses = {
                     @ApiResponse(
                             content = @Content(mediaType = "string"),
@@ -77,8 +77,9 @@ public class AuthController {
                             responseCode = "404", description = "User not found with such email exception")
             }
     )
-    public String resendMessage(@RequestBody @Valid RegistrationRequest request) {
-        return authService.resendMessage_dev_stage(request);
+    public String resendMessage(@RequestBody @Valid RegistrationRequest request,
+                                @RequestParam(name = "link") String link) {
+        return authService.sendMessage_dev(request, link);
     }
 
     @PostMapping("/sign-in")

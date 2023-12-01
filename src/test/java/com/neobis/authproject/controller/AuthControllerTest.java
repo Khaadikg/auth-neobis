@@ -60,7 +60,6 @@ class AuthControllerTest {
                                 .email("notexist@mail.com")
                                 .password("regis_password")
                                 .username("regis_username")
-                                .link("some_link")
                                 .build())))
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.ALL))
@@ -68,9 +67,10 @@ class AuthControllerTest {
     }
 
     @Test
-    void resendMessage() throws Exception {
-        if (userRepository.findByUUID("cool_token").isEmpty()) {
+    void sendMessage() throws Exception {
+        if (userRepository.findByEmail("notexist@mail.com").isEmpty()) {
             userRepository.save(User.builder()
+                    .email("notexist@mail.com")
                     .role(Role.USER)
                     .UUIDExpirationDate(LocalDateTime.now().plusMinutes(5))
                     .state(UserState.DISABLED)
@@ -78,16 +78,15 @@ class AuthControllerTest {
                     .username("regis_username")
                     .build());
         }
-        this.mockMvc.perform(MockMvcRequestBuilders.put(URL + "/resend-message")
+        this.mockMvc.perform(MockMvcRequestBuilders.put(URL + "/send-message")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param("link", "some_link")
                         .content(mapper.writeValueAsString(RegistrationRequest.builder()
                                 .email("notexist@mail.com")
                                 .password("regis_password")
                                 .username("regis_username")
-                                .link("some_link")
                                 .build())))
                 .andDo(print())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.ALL))
                 .andExpect(status().isOk());
     }
 

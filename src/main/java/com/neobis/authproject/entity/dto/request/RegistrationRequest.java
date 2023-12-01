@@ -14,6 +14,4 @@ public class RegistrationRequest {
     String password;
     @NotBlank
     String username;
-    @NotBlank
-    String link;
 }
