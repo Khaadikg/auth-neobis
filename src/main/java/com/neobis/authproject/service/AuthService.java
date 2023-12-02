@@ -47,6 +47,7 @@ public class AuthService {
         String UUID = java.util.UUID.randomUUID().toString();
         sendSimpleMessage(request.getEmail(), link, UUID);
         user.setUUIDExpirationDate(LocalDateTime.now().plusMinutes(5));
+        user.setUUID(UUID);
         userRepository.save(user);
         return "Письмо отправлено на почту " + request.getEmail();
     }
@@ -57,6 +58,7 @@ public class AuthService {
         );
         String UUID = java.util.UUID.randomUUID().toString();
         user.setUUIDExpirationDate(LocalDateTime.now().plusMinutes(5));
+        user.setUUID(UUID);
         userRepository.save(user);
         return link + "?token=" + UUID; // disable for prod
     }
