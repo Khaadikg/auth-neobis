@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://neobis-front-authorization.vercel.app")
+@CrossOrigin(origins = {"https://neobis-front-authorization.vercel.app", "http://localhost:5173"})
 @Tag(name = "Auth controller", description = "Uses for logic upon registration and authentication(login)")
 public class AuthController {
     private final AuthService authService;
