@@ -81,7 +81,7 @@ public class AuthController {
     )
     public String resendMessage(@RequestBody @Valid RegistrationRequest request,
                                 @Parameter(description = "The link to frontend service", required = true)@RequestParam(name = "link") String link) {
-        return authService.sendMessage_dev(request, link);
+        return authService.sendMessage(request, link);
     }
 
     @PostMapping("/sign-in")
